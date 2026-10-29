@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars and fill in. Do not commit a real API key.
+project         = "<GCP_PROJECT_ID>"
+region          = "us-central1"
+name            = "ssi-bugbash-cloud-run-tf-java"
+image           = "us-central1-docker.pkg.dev/<GCP_PROJECT_ID>/<REPO_NAME>/java-ssi:latest"
+datadog_api_key = "<DATADOG_API_KEY>"

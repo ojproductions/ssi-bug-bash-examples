@@ -1,0 +1,23 @@
+{
+  "name": "ssi-bugbash-ecs-cdk",
+  "private": true,
+  "version": "1.0.0",
+  "bin": {
+    "ssi-bugbash-ecs-cdk": "bin/index.js"
+  },
+  "scripts": {
+    "synth": "cdk synth",
+    "deploy": "cdk deploy"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "aws-cdk": "^2.1118.4",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.269.0",
+    "constructs": "^10.5.1",
+    "datadog-cdk-constructs-v2": "^5.3.0"
+  }
+}

@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars and fill in. Do not commit a real API key.
+datadog_api_key     = "<DATADOG_API_KEY>"
+name                = "ssi-bugbash-aca-tf-python"
+resource_group_name = "<RESOURCE_GROUP>"
+subscription_id     = "<SUBSCRIPTION_ID>"
+environment_name    = "<CONTAINER_APP_ENVIRONMENT>"
+image               = "<REGISTRY>.azurecr.io/python-ssi:latest"

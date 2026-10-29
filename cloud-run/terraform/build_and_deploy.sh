@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Unless explicitly stated otherwise all files in this repository are licensed under the Apache-2.0 License.
+# This product includes software developed at Datadog (https://www.datadoghq.com/) Copyright 2025 Datadog, Inc.
+
+
+# Build and deploy script for sidecar-instrumented Cloud Run apps
+# Usage: ./build_and_deploy.sh <language>
+# Example: ./build_and_deploy.sh go
+
+set -aeuo pipefail
+
+if ! command -v terraform &> /dev/null; then
+    echo "Error: terraform command not found. Please install Terraform."
+    exit 1
+fi
+
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <language>"
+    echo "Available languages: go, python, node, java, php, ruby, dotnet"
+    exit 1
+fi
+
+LANGUAGE="$1"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_PATH="$SCRIPT_DIR/$LANGUAGE/src"
+
+if [ ! -d "$PROJECT_PATH" ]; then
+    echo "Error: Language directory '$LANGUAGE' not found in $SCRIPT_DIR"
+    exit 1
+fi
+
+if [ ! -f "$PROJECT_PATH/Dockerfile" ]; then
+    echo "Error: No Dockerfile found in $PROJECT_PATH"
+    exit 1
+fi
+
+echo "Building and deploying $LANGUAGE application from $PROJECT_PATH"
+
+# Configuration
+PROJECT_ID=${PROJECT_ID:-${TF_VAR_project:?required but not set (PROJECT_ID or TF_VAR_project)}}
+GCP_PROJECT_NAME=${GCP_PROJECT_NAME:?required but not set}
+DD_SERVICE=${DD_SERVICE:?required but not set}
+REPO_NAME=${REPO_NAME:?required but not set}
+REGION=${REGION:-us-central1}
+
+IMAGE_REPO="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${GCP_PROJECT_NAME}-${LANGUAGE}"
+IMAGE_NAME="${IMAGE_REPO}:$(date -u +%Y%m%d-%H%M%S)"
+
+# Build
+echo -e "\n====== Initializing ======"
+cd "$PROJECT_PATH"
+gcloud config set project ${PROJECT_ID}
+
+gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
+
+echo -e "\n====== Building Docker image ======"
+docker build --platform linux/amd64 --load -t "${IMAGE_NAME}" .
+docker push "${IMAGE_NAME}"
+
+# Deploy to Cloud Run
+echo -e "\n====== Deploying to Cloud Run using terraform ======"
+IMAGE_DIGEST="$(docker image inspect --format='{{index .RepoDigests 0}}' "${IMAGE_NAME}")"
+echo "Deploying ${IMAGE_DIGEST}"
+cd "../"
+terraform init
+terraform apply -auto-approve -var="image=${IMAGE_DIGEST}"

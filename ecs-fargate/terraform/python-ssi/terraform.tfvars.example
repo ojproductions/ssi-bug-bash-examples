@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars and fill in. Do not commit a real API key.
+aws_region       = "sa-east-1"
+dd_api_key       = "<DATADOG_API_KEY>"
+dd_site          = "datadoghq.com"
+dd_service       = "ssi-bugbash-ecs-tf-python"
+dd_env           = "bugbash"
+dd_version       = "1.0.0"
+image            = "<ACCOUNT_ID>.dkr.ecr.sa-east-1.amazonaws.com/python-ssi-example:latest"
+task_family_name = "ssi-bugbash-ecs-tf-python"
